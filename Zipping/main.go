@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//To hold the file paths
 var files []string
 
 // iterate over the files
