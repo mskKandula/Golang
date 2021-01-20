@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
+	"os"
 )
 
 type User struct {
@@ -18,6 +20,7 @@ func main() {
 	http.HandleFunc("/", stringHandler)
 	http.HandleFunc("/json", jsonHandler)
 	http.HandleFunc("/template", templateHandler)
+	http.HandleFunc("/file", fileHandler)
 	fmt.Println("listening on port 8081")
 	http.ListenAndServe(":8081", nil)
 
@@ -44,6 +47,22 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	// sending the final User struct as a response
 	json.NewEncoder(w).Encode(u)
 
+}
+
+// fileHandler downloads a file on the client machine
+func fileHandler(w http.ResponseWriter, r *http.Request) {
+
+	imageFile, _ := os.Open("./Sample.png")
+
+	// its for the file to download automatically as "Sample.png"
+	w.Header().Set("Content-Disposition", "attachment; filename=Sample.png")
+
+	w.Header().Set("Content-Type", "image/png")
+
+	defer imageFile.Close()
+
+	// copying the imageFile to response writer
+	io.Copy(w, imageFile)
 }
 
 //templateHandler renders a template and returns as http response.
