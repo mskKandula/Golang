@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,8 +12,9 @@ import (
 )
 
 var (
-	Db  *sql.DB
-	err error
+	Db          *sql.DB
+	err         error
+	credentials = make(map[string]string)
 )
 
 func Signup(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +29,8 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	query.Exec(user.Name, user.Age, user.Email, user.PhoneNo, user.Password)
 
+	credentials[user.Email] = user.Password
+
 	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(user)
@@ -34,6 +38,17 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 func Login(w http.ResponseWriter, r *http.Request) {
 
+	var validation model.Validation
+
+	json.NewDecoder(r.Body).Decode(&validation)
+
+	if credentials[validation.Email] != validation.Password {
+
+		w.WriteHeader(http.StatusUnauthorized)
+
+		return
+	}
+	fmt.Fprintf(w, "logged in Successfully")
 }
 func Logout(w http.ResponseWriter, r *http.Request) {
 

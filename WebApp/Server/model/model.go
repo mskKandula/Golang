@@ -9,3 +9,8 @@ type User struct {
 	PhoneNo  string `json:"phoneNo,omitempty"`
 	Password string `json:"password"`
 }
+
+type Validation struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
