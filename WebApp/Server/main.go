@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/mskKandula/controller"
@@ -10,6 +12,14 @@ import (
 var (
 	err error
 )
+
+func init() {
+	controller.Db, err = sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/WebApp")
+
+	if err != nil {
+		log.Println("Connection Failed to Open")
+	}
+}
 
 func main() {
 	http.HandleFunc("/signup", controller.Signup)
