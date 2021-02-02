@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/mskKandula/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -23,11 +24,18 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&user)
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hashedPassword := string(hash)
+
 	query, err := Db.Prepare("INSERT INTO USERS(name, age, email, phoneNo, password) VALUES(?,?,?,?,?)")
 	if err != nil {
 		log.Panic(err)
 	}
-	query.Exec(user.Name, user.Age, user.Email, user.PhoneNo, user.Password)
+	query.Exec(user.Name, user.Age, user.Email, user.PhoneNo, hashedPassword)
 
 	// credentials[user.Email] = user.Password
 
@@ -63,7 +71,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if validation.Password != password {
+	// if validation.Password != password {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
+
+	if err := bcrypt.CompareHashAndPassword([]byte(password), []byte(validation.Password)); err != nil {
+
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
