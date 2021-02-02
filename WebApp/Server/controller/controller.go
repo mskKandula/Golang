@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	Db          *sql.DB
-	err         error
-	credentials = make(map[string]string)
+	Db  *sql.DB
+	err error
+	// credentials = make(map[string]string)
 )
 
 func Signup(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	query.Exec(user.Name, user.Age, user.Email, user.PhoneNo, user.Password)
 
-	credentials[user.Email] = user.Password
+	// credentials[user.Email] = user.Password
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -38,16 +38,36 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 func Login(w http.ResponseWriter, r *http.Request) {
 
-	var validation model.Validation
+	var (
+		validation model.Validation
+		password   string
+	)
 
 	json.NewDecoder(r.Body).Decode(&validation)
 
-	if credentials[validation.Email] != validation.Password {
+	// if credentials[validation.Email] != validation.Password {
 
+	// 	w.WriteHeader(http.StatusUnauthorized)
+
+	// 	return
+	// }
+
+	row := Db.QueryRow("select password from USERS where email=?", validation.Email)
+
+	err = row.Scan(&password)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}
+
+	if validation.Password != password {
 		w.WriteHeader(http.StatusUnauthorized)
-
 		return
 	}
+
 	fmt.Fprintf(w, "logged in Successfully")
 }
 func Logout(w http.ResponseWriter, r *http.Request) {
