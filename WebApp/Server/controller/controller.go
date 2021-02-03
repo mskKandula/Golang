@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/mskKandula/middleware"
 	"github.com/mskKandula/model"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -82,7 +83,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "logged in Successfully")
+	tokenString, expirationTime, err := middleware.Auth(validation)
+
+	if err != nil {
+		// If the structure of the body is wrong, return an HTTP error
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	fmt.Println("Token Expires at : ", expirationTime)
+
+	fmt.Fprintf(w, tokenString)
 }
 func Logout(w http.ResponseWriter, r *http.Request) {
 
