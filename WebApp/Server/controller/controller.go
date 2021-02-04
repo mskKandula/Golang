@@ -93,8 +93,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Token Expires at : ", expirationTime)
 
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+	})
+
 	fmt.Fprintf(w, tokenString)
 }
 func Logout(w http.ResponseWriter, r *http.Request) {
 
+	http.SetCookie(w, &http.Cookie{
+		Name:   "token",
+		MaxAge: -1,
+	})
 }
