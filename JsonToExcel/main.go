@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/tealeg/xlsx/v3"
@@ -10,26 +11,32 @@ import (
 
 func main() {
 
-	studentList := []byte(`[{
-		"CandidateDetails":{
-			"paperName": "English"
-			"programName": "BE"
-			"projectTitle": "A Project in English"
-			"status": "APPROVED"
-			}
-			"name": "ABC"
-			"userName": "12345678"
-		},
-		{"CandidateDetails":{
-			"paperName": "Science"
-			"programName": "B.E"
-			"projectTitle": "A Project in Science"
-			"status": "REJECTED"
-			}
-			"name": "DEF"
-			"userName": "87654321"
-		}
-			]`)
+	// studentList := []byte(`[{
+	// 	"CandidateDetails":{
+	// 		"paperName": "English"
+	// 		"programName": "BE"
+	// 		"projectTitle": "A Project in English"
+	// 		"status": "APPROVED"
+	// 		}
+	// 		"name": "ABC"
+	// 		"userName": "12345678"
+	// 	},
+	// 	{"CandidateDetails":{
+	// 		"paperName": "Science"
+	// 		"programName": "B.E"
+	// 		"projectTitle": "A Project in Science"
+	// 		"status": "REJECTED"
+	// 		}
+	// 		"name": "DEF"
+	// 		"userName": "87654321"
+	// 	}
+	// 		]`)
+
+	studentList, err := getStudentList()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	studentListResult := gjson.ParseBytes(studentList)
 
@@ -41,6 +48,11 @@ func main() {
 
 	fmt.Printf("Your %s report has been generated", Report)
 
+}
+
+func getStudentList() ([]byte, error) {
+	res, err := ioutil.ReadFile("jsonFile.json")
+	return res, err
 }
 
 func generateExcel(studentListResult gjson.Result) (string, error) {
