@@ -71,8 +71,12 @@ func handleMessages() {
 }
 
 func main() {
+	 
+	// Create a simple file server
+	 fs := http.FileServer(http.Dir("../Client"))
+	 http.Handle("/", fs)
 	
-	// Configure websocket route
+	 // Configure websocket route
 	  http.HandleFunc("/ws", handleConnections)
 	   
 	  // Start listening for incoming chat messages
