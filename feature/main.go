@@ -5,5 +5,7 @@ import(
 )
 
 func main(){
-	fmt.Println("hello world")
+	var a int
+	a =12
+	fmt.Println(a)
 }
