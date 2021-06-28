@@ -17,17 +17,19 @@ var upgrader = websocket.Upgrader{
 // Client represents the websocket client at the server
 type Client struct {
 	// The actual websocket connection.
-	conn *websocket.Conn
+	conn     *websocket.Conn
+	wsServer *WsServer
 }
 
-func newClient(conn *websocket.Conn) *Client {
+func newClient(conn *websocket.Conn, wsServer *WsServer) *Client {
 	return &Client{
-		conn: conn,
+		conn:     conn,
+		wsServer: wsServer,
 	}
 }
 
 // ServeWs handles websocket requests from clients requests.
-func ServeWs(w http.ResponseWriter, r *http.Request) {
+func ServeWs(wsServer *WsServer, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -35,9 +37,13 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := newClient(conn)
+	client := newClient(conn, wsServer)
+
+	go client.ReadPump()
 
 	fmt.Println("New Client Joined")
 
 	fmt.Println("client : ", client)
+
+	wsServer.Register <- client
 }

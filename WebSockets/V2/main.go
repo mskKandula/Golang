@@ -16,7 +16,10 @@ func main() {
 	go wsServer.Run()
 
 	http.HandleFunc("/", homePage)
-	http.HandleFunc("/ws", chat.ServeWs)
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		chat.ServeWs(wsServer, w, r)
+	})
 
 	log.Fatal(http.ListenAndServe(":8090", nil))
 }
