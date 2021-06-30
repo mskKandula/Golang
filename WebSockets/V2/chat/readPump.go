@@ -8,9 +8,9 @@ import (
 
 func (client *Client) ReadPump() {
 
-	// defer func() {
-	// 	client.conn.Close()
-	// }()
+	defer func() {
+		client.Disconnect()
+	}()
 
 	for {
 

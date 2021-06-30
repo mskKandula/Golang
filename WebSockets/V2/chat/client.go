@@ -17,15 +17,24 @@ var upgrader = websocket.Upgrader{
 // Client represents the websocket client at the server
 type Client struct {
 	// The actual websocket connection.
-	conn     *websocket.Conn
-	wsServer *WsServer
+	Conn     *websocket.Conn
+	WsServer *WsServer
+	Rooms map[*Room]bool
 }
 
 func newClient(conn *websocket.Conn, wsServer *WsServer) *Client {
 	return &Client{
-		conn:     conn,
-		wsServer: wsServer,
+		Conn:     conn,
+		WsServer: wsServer,
+		Rooms: make(map[*Room]bool)
 	}
+}
+
+func (client *Client) Disconnect() {
+    client.wsServer.UnRegister <- client
+    for room := range client.Rooms {
+        room.UnRegister <- client
+    }
 }
 
 // ServeWs handles websocket requests from clients requests.
