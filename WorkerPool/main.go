@@ -5,37 +5,39 @@ import (
 	"time"
 )
 
-func main(){
-	startTime :=time.Now()
+func main() {
+	startTime := time.Now()
 
-	jobs :=make(chan int,100)
+	//If want to use UnBuffered Channel/Buffered Channel of size less than 100
+	//check Misc/ConcurrentProcess
+	jobs := make(chan int, 100)
 
-	results:=make(chan int,100)
+	results := make(chan int, 100)
 
-	NoWorkers:= 10
+	NoWorkers := 10
 
-	for k:=0;k<NoWorkers;k++{
+	for k := 0; k < NoWorkers; k++ {
 
-		go worker(jobs,results)
+		go worker(jobs, results)
 
 	}
 
-	for i:=0;i<100;i++{
+	for i := 0; i < 100; i++ {
 		jobs <- i
 	}
 
 	close(jobs)
 
-	for j:= range results{
+	for j := range results {
 		fmt.Println(j)
 	}
-	fmt.Printf("Total Time taken  is : %v ",time.Since(startTime))
+	fmt.Printf("Total Time taken  is : %v ", time.Since(startTime))
 
 }
 
-func worker(jobs <-chan int,results chan<- int){
+func worker(jobs <-chan int, results chan<- int) {
 
-	for n := range jobs{
+	for n := range jobs {
 
 		results <- fib(n)
 
@@ -43,9 +45,9 @@ func worker(jobs <-chan int,results chan<- int){
 	close(results)
 }
 
-func fib(n int)int{
+func fib(n int) int {
 
-	if n<=1{
+	if n <= 1 {
 		return 1
 	}
 
