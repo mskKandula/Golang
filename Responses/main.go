@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 type User struct {
@@ -19,6 +23,7 @@ type User struct {
 func main() {
 	http.HandleFunc("/", stringHandler)
 	http.HandleFunc("/json", jsonHandler)
+	http.HandleFunc("/jsonVariant", jsonVariantHandler)
 	http.HandleFunc("/template", templateHandler)
 	http.HandleFunc("/file", fileHandler)
 	fmt.Println("listening on port 8081")
@@ -47,6 +52,36 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	// sending the final User struct as a response
 	json.NewEncoder(w).Encode(u)
 
+}
+
+func jsonVariantHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+
+	var name, last string
+
+	response, _ := ioutil.ReadAll(r.Body)
+
+	jsonList := gjson.ParseBytes(response)
+
+	var dataToSend []gjson.Result
+
+	for _, val := range jsonList.Array() {
+		name = val.Get("name").String()
+		last = val.Get("last").String()
+		data := prepareResult([]string{"name", "last"}, []interface{}{name, last})
+		dataToSend = append(dataToSend, data)
+	}
+	json.NewEncoder(w).Encode(dataToSend)
+}
+
+func prepareResult(keys []string, vals []interface{}) gjson.Result {
+	var data string
+	for i, k := range keys {
+		data, _ = sjson.Set(data, k, vals[i])
+	}
+
+	return gjson.Parse(data)
 }
 
 // fileHandler downloads a file on the client machine
