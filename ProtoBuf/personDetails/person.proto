@@ -1,0 +1,13 @@
+syntax ="proto3";
+
+package personDetails;
+
+option go_package = "personDetails";
+
+message Person{
+    int32 age =1;
+    string name =2;
+    // List of Mobile Numbers
+    repeated string mobileNumber=3;
+    string email =4;
+}
