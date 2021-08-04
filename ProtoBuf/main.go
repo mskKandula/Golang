@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/mskKandula/protobuf/personDetails"
 	"google.golang.org/protobuf/proto"
 )
@@ -12,9 +13,49 @@ import (
 func main() {
 	person := getDetails()
 
+	readWriteFile(person)
+	readWriteJson(person)
+
+}
+
+func readWriteJson(person *personDetails.Person) {
+	personString, _ := writeJson(person)
+
+	readJson(personString)
+}
+
+func readJson(personString string) {
+
+	person2 := &personDetails.Person{}
+
+	if err := jsonpb.UnmarshalString(personString, person2); err != nil {
+		log.Fatalln("Unable to Unmarsahl personString to person: ", err)
+
+	}
+
+	fmt.Println("The Person is: ", person2)
+
+}
+func writeJson(person *personDetails.Person) (string, error) {
+
+	marshaller := jsonpb.Marshaler{}
+
+	personString, err := marshaller.MarshalToString(person)
+
+	if err != nil {
+		log.Fatalln("Unable to marsahl Person to string: ", err)
+		return "", err
+	}
+
+	fmt.Println("The person string is: ", personString)
+
+	return personString, nil
+
+}
+
+func readWriteFile(person *personDetails.Person) {
 	writeToFile(person, "person.bin")
 	readFromFile("person.bin")
-
 }
 
 func readFromFile(fname string) error {
