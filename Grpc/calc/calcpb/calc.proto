@@ -17,8 +17,19 @@ message CalcResponse{
     int64 result =1;
 }
 
+message CalcManyRequest{
+    int32 number=1;
+}
+
+message CalcManyResponse{
+    int32 result=1;
+}
+
 service CalcService{
     // Unary
     rpc Sum(CalcRequest)returns(CalcResponse){};
+
+    // Server Streaming
+    rpc Prime(CalcManyRequest)returns(stream CalcManyResponse){};
 }
 

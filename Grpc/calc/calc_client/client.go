@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/mskKandula/calcpb"
@@ -21,6 +22,11 @@ func main() {
 
 	c := calcpb.NewCalcServiceClient(conn)
 
+	// doUnary(c)
+	doServerStreaming(c)
+}
+
+func doUnary(c calcpb.CalcServiceClient) {
 	req := &calcpb.CalcRequest{
 		IntegerData: &calcpb.IntegerData{
 			FirstNum:  1024,
@@ -35,5 +41,29 @@ func main() {
 	}
 
 	fmt.Println(resp)
-	// fmt.Println("Client Created", c)
+}
+
+func doServerStreaming(c calcpb.CalcServiceClient) {
+	req := &calcpb.CalcManyRequest{
+		Number: 120,
+	}
+
+	primeClient, err := c.Prime(context.Background(), req)
+
+	if err != nil {
+		log.Fatalln("Error fetching the response: ", err)
+	}
+	for {
+		res, err := primeClient.Recv()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalln("Error fetching the response: ", err)
+		}
+
+		fmt.Println("The Factor is:", res.GetResult())
+	}
 }
