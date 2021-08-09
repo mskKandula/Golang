@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/mskKandula/greetpb"
@@ -20,7 +21,14 @@ func main() {
 	defer conn.Close()
 
 	c := greetpb.NewGreetClient(conn)
+	// Unary
+	// doUnary(c)
 
+	// Server Streaming
+	doServerStreaming(c)
+}
+
+func doUnary(c greetpb.GreetClient) {
 	req := &greetpb.GreetRequest{
 		Greeting: &greetpb.Greeting{
 			FirstName: "Mohan",
@@ -35,5 +43,32 @@ func main() {
 	}
 
 	fmt.Println(resp)
-	// fmt.Println("Client Created", c)
+}
+
+func doServerStreaming(c greetpb.GreetClient) {
+
+	req := &greetpb.GreetManyTimesRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "Mohana",
+			LastName:  "Kandula",
+		},
+	}
+
+	respStream, err := c.GreetManyTimes(context.Background(), req)
+
+	if err != nil {
+		log.Fatalln("Error fetching  the streaming response: ", err)
+	}
+	for {
+		msg, err := respStream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalln("Error while reading the stream:", err)
+		}
+
+		fmt.Println("Response from streaming is : ", msg.GetResult())
+	}
 }
