@@ -267,6 +267,100 @@ func (x *CalcManyResponse) GetResult() int32 {
 	return 0
 }
 
+type LongCalcRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Number int32 `protobuf:"varint,1,opt,name=number,proto3" json:"number,omitempty"`
+}
+
+func (x *LongCalcRequest) Reset() {
+	*x = LongCalcRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_calc_calcpb_calc_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *LongCalcRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LongCalcRequest) ProtoMessage() {}
+
+func (x *LongCalcRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_calc_calcpb_calc_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LongCalcRequest.ProtoReflect.Descriptor instead.
+func (*LongCalcRequest) Descriptor() ([]byte, []int) {
+	return file_calc_calcpb_calc_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *LongCalcRequest) GetNumber() int32 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+type LongCalcResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Result float32 `protobuf:"fixed32,1,opt,name=result,proto3" json:"result,omitempty"`
+}
+
+func (x *LongCalcResponse) Reset() {
+	*x = LongCalcResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_calc_calcpb_calc_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *LongCalcResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LongCalcResponse) ProtoMessage() {}
+
+func (x *LongCalcResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_calc_calcpb_calc_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LongCalcResponse.ProtoReflect.Descriptor instead.
+func (*LongCalcResponse) Descriptor() ([]byte, []int) {
+	return file_calc_calcpb_calc_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *LongCalcResponse) GetResult() float32 {
+	if x != nil {
+		return x.Result
+	}
+	return 0
+}
+
 var File_calc_calcpb_calc_proto protoreflect.FileDescriptor
 
 var file_calc_calcpb_calc_proto_rawDesc = []byte{
@@ -289,17 +383,26 @@ var file_calc_calcpb_calc_proto_rawDesc = []byte{
 	0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x2a, 0x0a, 0x10, 0x43, 0x61, 0x6c, 0x63, 0x4d, 0x61, 0x6e,
 	0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73,
 	0x75, 0x6c, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c,
-	0x74, 0x32, 0x81, 0x01, 0x0a, 0x0b, 0x43, 0x61, 0x6c, 0x63, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x12, 0x32, 0x0a, 0x03, 0x53, 0x75, 0x6d, 0x12, 0x13, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70,
-	0x62, 0x2e, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e,
-	0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x05, 0x50, 0x72, 0x69, 0x6d, 0x65, 0x12, 0x17,
+	0x74, 0x22, 0x29, 0x0a, 0x0f, 0x4c, 0x6f, 0x6e, 0x67, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x2a, 0x0a, 0x10,
+	0x4c, 0x6f, 0x6e, 0x67, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02,
+	0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x32, 0xc3, 0x01, 0x0a, 0x0b, 0x43, 0x61, 0x6c,
+	0x63, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x32, 0x0a, 0x03, 0x53, 0x75, 0x6d, 0x12,
+	0x13, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x43, 0x61,
+	0x6c, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x05,
+	0x50, 0x72, 0x69, 0x6d, 0x65, 0x12, 0x17, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x43,
+	0x61, 0x6c, 0x63, 0x4d, 0x61, 0x6e, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18,
 	0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x43, 0x61, 0x6c, 0x63, 0x4d, 0x61, 0x6e, 0x79,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62,
-	0x2e, 0x43, 0x61, 0x6c, 0x63, 0x4d, 0x61, 0x6e, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x00, 0x30, 0x01, 0x42, 0x13, 0x5a, 0x11, 0x6d, 0x73, 0x6b, 0x4b, 0x61, 0x6e, 0x64,
-	0x75, 0x6c, 0x61, 0x2f, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x30, 0x01, 0x12, 0x40, 0x0a, 0x07,
+	0x41, 0x76, 0x65, 0x72, 0x61, 0x67, 0x65, 0x12, 0x17, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62,
+	0x2e, 0x4c, 0x6f, 0x6e, 0x67, 0x43, 0x61, 0x6c, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x18, 0x2e, 0x63, 0x61, 0x6c, 0x63, 0x70, 0x62, 0x2e, 0x4c, 0x6f, 0x6e, 0x67, 0x43, 0x61,
+	0x6c, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01, 0x42, 0x13,
+	0x5a, 0x11, 0x6d, 0x73, 0x6b, 0x4b, 0x61, 0x6e, 0x64, 0x75, 0x6c, 0x61, 0x2f, 0x63, 0x61, 0x6c,
+	0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -314,22 +417,26 @@ func file_calc_calcpb_calc_proto_rawDescGZIP() []byte {
 	return file_calc_calcpb_calc_proto_rawDescData
 }
 
-var file_calc_calcpb_calc_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_calc_calcpb_calc_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_calc_calcpb_calc_proto_goTypes = []interface{}{
 	(*IntegerData)(nil),      // 0: calcpb.IntegerData
 	(*CalcRequest)(nil),      // 1: calcpb.CalcRequest
 	(*CalcResponse)(nil),     // 2: calcpb.CalcResponse
 	(*CalcManyRequest)(nil),  // 3: calcpb.CalcManyRequest
 	(*CalcManyResponse)(nil), // 4: calcpb.CalcManyResponse
+	(*LongCalcRequest)(nil),  // 5: calcpb.LongCalcRequest
+	(*LongCalcResponse)(nil), // 6: calcpb.LongCalcResponse
 }
 var file_calc_calcpb_calc_proto_depIdxs = []int32{
 	0, // 0: calcpb.CalcRequest.integer_data:type_name -> calcpb.IntegerData
 	1, // 1: calcpb.CalcService.Sum:input_type -> calcpb.CalcRequest
 	3, // 2: calcpb.CalcService.Prime:input_type -> calcpb.CalcManyRequest
-	2, // 3: calcpb.CalcService.Sum:output_type -> calcpb.CalcResponse
-	4, // 4: calcpb.CalcService.Prime:output_type -> calcpb.CalcManyResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
+	5, // 3: calcpb.CalcService.Average:input_type -> calcpb.LongCalcRequest
+	2, // 4: calcpb.CalcService.Sum:output_type -> calcpb.CalcResponse
+	4, // 5: calcpb.CalcService.Prime:output_type -> calcpb.CalcManyResponse
+	6, // 6: calcpb.CalcService.Average:output_type -> calcpb.LongCalcResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -401,6 +508,30 @@ func file_calc_calcpb_calc_proto_init() {
 				return nil
 			}
 		}
+		file_calc_calcpb_calc_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LongCalcRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_calc_calcpb_calc_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LongCalcResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -408,7 +539,7 @@ func file_calc_calcpb_calc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_calc_calcpb_calc_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -438,6 +569,8 @@ type CalcServiceClient interface {
 	Sum(ctx context.Context, in *CalcRequest, opts ...grpc.CallOption) (*CalcResponse, error)
 	// Server Streaming
 	Prime(ctx context.Context, in *CalcManyRequest, opts ...grpc.CallOption) (CalcService_PrimeClient, error)
+	// Client Streaming
+	Average(ctx context.Context, opts ...grpc.CallOption) (CalcService_AverageClient, error)
 }
 
 type calcServiceClient struct {
@@ -489,12 +622,48 @@ func (x *calcServicePrimeClient) Recv() (*CalcManyResponse, error) {
 	return m, nil
 }
 
+func (c *calcServiceClient) Average(ctx context.Context, opts ...grpc.CallOption) (CalcService_AverageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_CalcService_serviceDesc.Streams[1], "/calcpb.CalcService/Average", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &calcServiceAverageClient{stream}
+	return x, nil
+}
+
+type CalcService_AverageClient interface {
+	Send(*LongCalcRequest) error
+	CloseAndRecv() (*LongCalcResponse, error)
+	grpc.ClientStream
+}
+
+type calcServiceAverageClient struct {
+	grpc.ClientStream
+}
+
+func (x *calcServiceAverageClient) Send(m *LongCalcRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *calcServiceAverageClient) CloseAndRecv() (*LongCalcResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(LongCalcResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CalcServiceServer is the server API for CalcService service.
 type CalcServiceServer interface {
 	// Unary
 	Sum(context.Context, *CalcRequest) (*CalcResponse, error)
 	// Server Streaming
 	Prime(*CalcManyRequest, CalcService_PrimeServer) error
+	// Client Streaming
+	Average(CalcService_AverageServer) error
 }
 
 // UnimplementedCalcServiceServer can be embedded to have forward compatible implementations.
@@ -506,6 +675,9 @@ func (*UnimplementedCalcServiceServer) Sum(context.Context, *CalcRequest) (*Calc
 }
 func (*UnimplementedCalcServiceServer) Prime(*CalcManyRequest, CalcService_PrimeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Prime not implemented")
+}
+func (*UnimplementedCalcServiceServer) Average(CalcService_AverageServer) error {
+	return status.Errorf(codes.Unimplemented, "method Average not implemented")
 }
 
 func RegisterCalcServiceServer(s *grpc.Server, srv CalcServiceServer) {
@@ -551,6 +723,32 @@ func (x *calcServicePrimeServer) Send(m *CalcManyResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _CalcService_Average_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalcServiceServer).Average(&calcServiceAverageServer{stream})
+}
+
+type CalcService_AverageServer interface {
+	SendAndClose(*LongCalcResponse) error
+	Recv() (*LongCalcRequest, error)
+	grpc.ServerStream
+}
+
+type calcServiceAverageServer struct {
+	grpc.ServerStream
+}
+
+func (x *calcServiceAverageServer) SendAndClose(m *LongCalcResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *calcServiceAverageServer) Recv() (*LongCalcRequest, error) {
+	m := new(LongCalcRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 var _CalcService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "calcpb.CalcService",
 	HandlerType: (*CalcServiceServer)(nil),
@@ -565,6 +763,11 @@ var _CalcService_serviceDesc = grpc.ServiceDesc{
 			StreamName:    "Prime",
 			Handler:       _CalcService_Prime_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "Average",
+			Handler:       _CalcService_Average_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "calc/calcpb/calc.proto",

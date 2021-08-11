@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/mskKandula/calcpb"
 	"google.golang.org/grpc"
@@ -23,7 +24,8 @@ func main() {
 	c := calcpb.NewCalcServiceClient(conn)
 
 	// doUnary(c)
-	doServerStreaming(c)
+	// doServerStreaming(c)
+	doClientStreaming(c)
 }
 
 func doUnary(c calcpb.CalcServiceClient) {
@@ -66,4 +68,46 @@ func doServerStreaming(c calcpb.CalcServiceClient) {
 
 		fmt.Println("The Factor is:", res.GetResult())
 	}
+}
+
+func doClientStreaming(c calcpb.CalcServiceClient) {
+
+	requests := []*calcpb.LongCalcRequest{
+		&calcpb.LongCalcRequest{
+			Number: 3,
+		},
+		&calcpb.LongCalcRequest{
+			Number: 4,
+		},
+		&calcpb.LongCalcRequest{
+			Number: 5,
+		},
+		&calcpb.LongCalcRequest{
+			Number: 3,
+		},
+		&calcpb.LongCalcRequest{
+			Number: 6,
+		},
+	}
+
+	stream, err := c.Average(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error while sending requests for client streaming")
+	}
+
+	for i, req := range requests {
+		stream.Send(req)
+		time.Sleep(1000 * time.Millisecond)
+		fmt.Printf("Sending a %v request with data %v \n", i+1, req.GetNumber())
+	}
+
+	data, err := stream.CloseAndRecv()
+
+	if err != nil {
+		log.Fatalf("Error while getting a response in Client Streaming")
+	}
+
+	fmt.Println("The result of client streaming, The Avg is: ", data.GetResult())
+
 }

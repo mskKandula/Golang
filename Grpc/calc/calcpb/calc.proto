@@ -25,11 +25,22 @@ message CalcManyResponse{
     int32 result=1;
 }
 
+message LongCalcRequest{
+    int32 number=1;
+}
+
+message LongCalcResponse{
+    float result=1;
+}
+
 service CalcService{
     // Unary
     rpc Sum(CalcRequest)returns(CalcResponse){};
 
     // Server Streaming
     rpc Prime(CalcManyRequest)returns(stream CalcManyResponse){};
+
+    // Client Streaming
+    rpc Average(stream LongCalcRequest)returns(LongCalcResponse){};
 }
 
