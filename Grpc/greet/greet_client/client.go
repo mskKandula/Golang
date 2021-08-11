@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/mskKandula/greetpb"
 	"google.golang.org/grpc"
@@ -25,9 +26,56 @@ func main() {
 	// doUnary(c)
 
 	// Server Streaming
-	doServerStreaming(c)
-}
+	// doServerStreaming(c)
 
+	// Client Streaming
+	doClientStreaming(c)
+}
+func doClientStreaming(c greetpb.GreetClient) {
+
+	requests := []*greetpb.LongGreetRequest{
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Mohan",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Sai",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Krishna",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Mohan",
+				LastName:  "Kandula",
+			},
+		},
+	}
+	stream, err := c.LongGreet(context.Background())
+
+	for i, req := range requests {
+		stream.Send(req)
+		fmt.Printf("Sending a %v request: %v\n", i, req)
+		time.Sleep(1000 * time.Millisecond)
+	}
+
+	resp, err := stream.CloseAndRecv()
+
+	if err != nil {
+		log.Fatalf("Error while reading a response: %v", err)
+	}
+
+	fmt.Println("The result response is :", resp.GetResult())
+
+}
 func doUnary(c greetpb.GreetClient) {
 	req := &greetpb.GreetRequest{
 		Greeting: &greetpb.Greeting{
