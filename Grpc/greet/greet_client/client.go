@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/mskKandula/greetpb"
@@ -29,8 +30,95 @@ func main() {
 	// doServerStreaming(c)
 
 	// Client Streaming
-	doClientStreaming(c)
+	// doClientStreaming(c)
+
+	// BiDi Streaming
+	doBidiStreaming(c)
 }
+
+func doBidiStreaming(c greetpb.GreetClient) {
+
+	requests := []*greetpb.GreetOnRequest{
+		&greetpb.GreetOnRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Mohan",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.GreetOnRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Sai",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.GreetOnRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Krishna",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.GreetOnRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Sai",
+				LastName:  "Kandula",
+			},
+		},
+		&greetpb.GreetOnRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: "Mohan",
+				LastName:  "Kandula",
+			},
+		},
+	}
+
+	stream, err := c.GreetOn(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error while preparing request in BiDi: %v", err)
+		return
+	}
+
+	waitc := make(chan struct{})
+
+	go func() {
+		for {
+			resp, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("Error while receiving the response in BiDi:%v", err)
+				break
+			}
+
+			fmt.Println("The response from server is:", resp.GetResult())
+		}
+
+		close(waitc)
+	}()
+
+	for i, req := range requests {
+
+		fmt.Printf("sending a %v request with data %v\n", i, req)
+
+		time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+
+		err = stream.Send(req)
+
+		if err != nil {
+			log.Fatalf("Error while sending request in BiDi: %v", err)
+			break
+		}
+	}
+
+	stream.CloseSend()
+
+	<-waitc
+
+}
+
 func doClientStreaming(c greetpb.GreetClient) {
 
 	requests := []*greetpb.LongGreetRequest{

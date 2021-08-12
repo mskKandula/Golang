@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"strconv"
 	"time"
@@ -75,6 +76,41 @@ func (*server) LongGreet(stream greetpb.Greet_LongGreetServer) error {
 		firstName := msg.GetGreeting().GetFirstName()
 
 		response += "\nHello " + firstName
+	}
+}
+
+func (*server) GreetOn(stream greetpb.Greet_GreetOnServer) error {
+
+	fmt.Println("Bidi Greet End Point Hit")
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error in Bidi while recieving request %v", err)
+			return err
+		}
+
+		firstName := req.GetGreeting().GetFirstName()
+
+		lastName := req.GetGreeting().GetLastName()
+
+		result := "Hi " + firstName + " " + lastName
+
+		time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+
+		err = stream.Send(
+			&greetpb.GreetOnResponse{
+				Result: result,
+			},
+		)
+		if err != nil {
+			return err
+		}
 	}
 }
 

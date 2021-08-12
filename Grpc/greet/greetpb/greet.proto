@@ -33,6 +33,14 @@ message LongGreetResponse{
     string result=1;
 }
 
+message GreetOnRequest{
+    Greeting greeting=1;
+}
+
+message GreetOnResponse{
+    string result=1;
+}
+
 service Greet{
     // Unary
     rpc GreetAPI(GreetRequest) returns (GreetResponse){};
@@ -42,5 +50,8 @@ service Greet{
 
     //Client Streaming
     rpc LongGreet(stream LongGreetRequest)returns(LongGreetResponse){};
+
+    // BiDi Streaming
+    rpc GreetOn(stream GreetOnRequest)returns(stream GreetOnResponse){};
 }
 
