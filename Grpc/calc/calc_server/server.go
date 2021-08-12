@@ -86,6 +86,40 @@ func (*server) Average(stream calcpb.CalcService_AverageServer) error {
 	}
 }
 
+func (*server) FindMax(stream calcpb.CalcService_FindMaxServer) error {
+
+	fmt.Println("BiDi end point hit")
+
+	large := int32(0)
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error while receiving requests in BiDi:%v", err)
+			return err
+		}
+
+		num := req.GetNumber()
+
+		if num > large {
+			large = num
+			err := stream.Send(&calcpb.FindMaxResponse{
+				Result: large,
+			})
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+}
+
 func main() {
 	fmt.Println("Hello world")
 

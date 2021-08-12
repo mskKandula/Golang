@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/mskKandula/calcpb"
@@ -25,7 +26,8 @@ func main() {
 
 	// doUnary(c)
 	// doServerStreaming(c)
-	doClientStreaming(c)
+	// doClientStreaming(c)
+	doBiDiStreaming(c)
 }
 
 func doUnary(c calcpb.CalcServiceClient) {
@@ -110,4 +112,52 @@ func doClientStreaming(c calcpb.CalcServiceClient) {
 
 	fmt.Println("The result of client streaming, The Avg is: ", data.GetResult())
 
+}
+
+func doBiDiStreaming(c calcpb.CalcServiceClient) {
+
+	requests := []int32{5, 2, 4, 8, 3, 9, 6, 10}
+
+	waitc := make(chan struct{})
+
+	stream, err := c.FindMax(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error %v", err)
+		return
+	}
+
+	go func() {
+		for {
+			resp, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("Error while recieving responses in BiDi:%v", err)
+				break
+			}
+			fmt.Println("The Max is:", resp.GetResult())
+		}
+		close(waitc)
+	}()
+
+	for _, req := range requests {
+		err = stream.Send(&calcpb.FindMaxRequest{
+			Number: req,
+		})
+
+		if err != nil {
+			log.Fatalf("Error while sending request in BiDi: %v", err)
+			break
+		}
+
+		time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+	}
+
+	stream.CloseSend()
+
+	<-waitc
 }
