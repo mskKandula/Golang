@@ -38,6 +38,10 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 func main() {
+	fs := http.FileServer(http.Dir("images"))
+
+	http.Handle("/images/", http.StripPrefix("/images/", fs))
+
 	http.HandleFunc("/", templateHandler)
 	http.ListenAndServe(":8081", nil)
 }
