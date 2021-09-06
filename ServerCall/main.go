@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/tidwall/sjson"
@@ -31,7 +32,7 @@ func main() {
 		req, err := http.NewRequest("POST", Url, bytes.NewBuffer([]byte(requestObj)))
 
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err.Error())
 		}
 
 		req.Header.Set("Content-Type", "application/json")
@@ -41,7 +42,7 @@ func main() {
 		resp, err := client.Do(req)
 
 		if err != nil {
-			panic(err)
+			log.Fatal(err.Error())
 		}
 
 		defer resp.Body.Close()

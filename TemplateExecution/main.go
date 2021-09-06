@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -43,5 +44,5 @@ func main() {
 	http.Handle("/images/", http.StripPrefix("/images/", fs))
 
 	http.HandleFunc("/", templateHandler)
-	http.ListenAndServe(":8081", nil)
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }

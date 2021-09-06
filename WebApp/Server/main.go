@@ -14,10 +14,10 @@ var (
 )
 
 func init() {
-	controller.Db, err = sql.Open("mysql", "root:12345678@tcp(127.0.0.1:3306)/WebApp")
+	controller.Db, err = sql.Open("mysql", "userName:password@tcp(address:port)/WebApp")
 
 	if err != nil {
-		log.Println("Connection Failed to Open")
+		log.Fatal("Connection Failed to Open")
 	}
 }
 
@@ -26,5 +26,5 @@ func main() {
 	http.HandleFunc("/login", controller.Login)
 	http.HandleFunc("/logout", controller.Logout)
 	fmt.Println("server is running on 8080")
-	http.ListenAndServe(":8080", nil)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

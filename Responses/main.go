@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -27,7 +28,7 @@ func main() {
 	http.HandleFunc("/template", templateHandler)
 	http.HandleFunc("/file", fileHandler)
 	fmt.Println("listening on port 8081")
-	http.ListenAndServe(":8081", nil)
+	log.Fatal(http.ListenAndServe(":8081", nil))
 
 }
 
@@ -45,8 +46,12 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	var u User
 
 	// Unmarshalling the data into User struct
-	json.NewDecoder(r.Body).Decode(&u)
+	err := json.NewDecoder(r.Body).Decode(&u)
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	// do some manipulations on User struct
 
 	// sending the final User struct as a response
@@ -60,7 +65,12 @@ func jsonVariantHandler(w http.ResponseWriter, r *http.Request) {
 
 	var name, last string
 
-	response, _ := ioutil.ReadAll(r.Body)
+	response, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	jsonList := gjson.ParseBytes(response)
 
@@ -87,7 +97,12 @@ func prepareResult(keys []string, vals []interface{}) gjson.Result {
 // fileHandler downloads a file on the client machine
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 
-	imageFile, _ := os.Open("./Sample.png")
+	imageFile, er := os.Open("./Sample.png")
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// its for the file to download automatically as "Sample.png"
 	w.Header().Set("Content-Disposition", "attachment; filename=Sample.png")
@@ -105,7 +120,8 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	t, err := template.ParseFiles("index.html")
 	if err != nil {
-		fmt.Fprintf(w, "Unable to load template")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	user := User{Id: 1,
