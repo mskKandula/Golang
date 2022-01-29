@@ -38,6 +38,18 @@ func (f *Filter) FilterByColor(Products []Product, color Color) []*Product {
 	return result
 }
 
+func (f *Filter) FilterBySize(Products []Product, size Size) []*Product {
+	result := make([]*Product, 0)
+
+	for i, product := range Products {
+		if product.size == size {
+			result = append(result, &Products[i])
+
+		}
+	}
+	return result
+}
+
 func main() {
 	var f Filter
 	products := []Product{
@@ -46,8 +58,12 @@ func main() {
 		{"Watermelon", green, large},
 	}
 
-	for _, product := range f.FilterByColor(products, green) {
-		fmt.Printf("-Green %s\n", product.name)
+	// for _, product := range f.FilterByColor(products, green) {
+	// 	fmt.Printf("-Green %s\n", product.name)
+	// }
+
+	for _, product := range f.FilterBySize(products, large) {
+		fmt.Printf("-Large %s\n", product.name)
 	}
 
 }
