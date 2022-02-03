@@ -23,10 +23,40 @@ func main() {
 		posts := FetchPosts(url, int(userId))
 
 		for _, post := range posts.Array() {
-			fmt.Println(post)
+			postId := post.Get("id").Int()
+
+			comments := FetchComments(url, int(postId))
+
+			for _, comment := range comments.Array() {
+				fmt.Println(comment)
+			}
 		}
 	}
 	fmt.Println(time.Since(t))
+}
+
+func FetchComments(url string, postId int) gjson.Result {
+
+	userUrl := url + "comments?postId=" + strconv.Itoa(postId)
+
+	resp, err := http.Get(userUrl)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := gjson.ParseBytes(body)
+
+	return result
+
 }
 
 func FetchPosts(url string, userId int) gjson.Result {
