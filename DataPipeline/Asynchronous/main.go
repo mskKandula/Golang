@@ -6,14 +6,18 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/tidwall/gjson"
 )
 
+var wg sync.WaitGroup
+
 const url = "https://jsonplaceholder.typicode.com/"
 
 func main() {
+	t := time.Now()
 
 	postsChan := make(chan int)
 	processPostsChan := make(chan gjson.Result)
@@ -21,13 +25,24 @@ func main() {
 	processCommentsChan := make(chan gjson.Result)
 	resultChan := make(chan gjson.Result)
 	boolChan := make(chan bool)
+
 	go FetchPosts(postsChan, processPostsChan)
 	go ProcessPosts(processPostsChan, commentsChan)
-	go FetchComments(commentsChan, processCommentsChan)
+
+	for i := 0; i < 5; i++ {
+		go FetchComments(commentsChan, processCommentsChan, &wg)
+		wg.Add(1)
+	}
+
 	go ProcessComments(processCommentsChan, resultChan)
 	go PrintResult(resultChan, boolChan)
 
-	t := time.Now()
+	go func() {
+		wg.Wait()
+		close(processCommentsChan)
+
+	}()
+
 	users := FetchUsers(url)
 
 	for _, user := range users.Array() {
@@ -35,20 +50,22 @@ func main() {
 		postsChan <- int(userId)
 
 	}
+
 	close(postsChan)
 	<-boolChan
+
 	fmt.Println(time.Since(t))
 }
 
 func PrintResult(resultChan <-chan gjson.Result, boolChan chan<- bool) {
-	for results := range resultChan {
-		fmt.Println(results)
-
+	for post := range resultChan {
+		fmt.Println(post)
 	}
 	boolChan <- true
 }
 
 func ProcessComments(processCommentsChan <-chan gjson.Result, resultChan chan<- gjson.Result) {
+
 	for comments := range processCommentsChan {
 
 		for _, comment := range comments.Array() {
@@ -57,9 +74,10 @@ func ProcessComments(processCommentsChan <-chan gjson.Result, resultChan chan<- 
 		}
 	}
 	close(resultChan)
+
 }
 
-func FetchComments(commentsChan <-chan int, processCommentsChan chan<- gjson.Result) {
+func FetchComments(commentsChan <-chan int, processCommentsChan chan<- gjson.Result, wg *sync.WaitGroup) {
 
 	for postId := range commentsChan {
 
@@ -81,20 +99,23 @@ func FetchComments(commentsChan <-chan int, processCommentsChan chan<- gjson.Res
 		resp.Body.Close()
 	}
 
-	close(processCommentsChan)
+	wg.Done()
 
 }
 
 func ProcessPosts(processPostsChan <-chan gjson.Result, commentsChan chan<- int) {
+
 	for posts := range processPostsChan {
 
 		for _, post := range posts.Array() {
 
 			postId := post.Get("id").Int()
 			commentsChan <- int(postId)
+
 		}
 	}
 	close(commentsChan)
+
 }
 
 func FetchPosts(postsChan <-chan int, processPostsChan chan<- gjson.Result) {
@@ -119,6 +140,7 @@ func FetchPosts(postsChan <-chan int, processPostsChan chan<- gjson.Result) {
 		resp.Body.Close()
 	}
 	close(processPostsChan)
+
 }
 
 func FetchUsers(url string) gjson.Result {
