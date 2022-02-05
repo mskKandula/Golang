@@ -16,6 +16,10 @@ type Album struct {
 	Id int `json:"id"`
 }
 
+type Photos struct {
+	Url string `json:"url"`
+}
+
 const url = "https://jsonplaceholder.typicode.com/"
 
 func main() {
@@ -23,18 +27,20 @@ func main() {
 
 	userIdsChan := make(chan int)
 	albumIdsChan := make(chan []Album)
+	albumIdChan := make(chan int)
 	boolChan := make(chan bool)
 
 	go FetchAlbums(userIdsChan, albumIdsChan)
+	go ProcessAlbums(albumIdsChan, albumIdChan)
 
-	go func(albumIdsChan <-chan []Album, boolChan chan<- bool) {
-		for albums := range albumIdsChan {
-			for _, album := range albums {
-				fmt.Println(album.Id)
-			}
+	go func(albumIdChan <-chan int, boolChan chan<- bool) {
+
+		for id := range albumIdChan {
+			fmt.Println(id)
 		}
 		boolChan <- true
-	}(albumIdsChan, boolChan)
+
+	}(albumIdChan, boolChan)
 
 	users := FetchUsers(url)
 
@@ -48,13 +54,20 @@ func main() {
 	fmt.Println(time.Since(t))
 }
 
+func ProcessAlbums(albumIdsChan <-chan []Album, albumIdChan chan<- int) {
+	for albums := range albumIdsChan {
+		for _, album := range albums {
+			albumIdChan <- album.Id
+		}
+	}
+	close(albumIdChan)
+}
+
 func FetchAlbums(userIdsChan <-chan int, albumIdsChan chan<- []Album) {
 
 	for id := range userIdsChan {
 
 		albumUrl := url + "albums?userId=" + strconv.Itoa(id)
-
-		fmt.Println(albumUrl)
 
 		resp, err := http.Get(albumUrl)
 
