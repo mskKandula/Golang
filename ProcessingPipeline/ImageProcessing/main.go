@@ -16,7 +16,7 @@ type Album struct {
 	Id int `json:"id"`
 }
 
-type Photos struct {
+type Photo struct {
 	Url string `json:"url"`
 }
 
@@ -28,19 +28,23 @@ func main() {
 	userIdsChan := make(chan int)
 	albumIdsChan := make(chan []Album)
 	albumIdChan := make(chan int)
+	photosChan := make(chan []Photo)
+	urlChan := make(chan string)
 	boolChan := make(chan bool)
 
 	go FetchAlbums(userIdsChan, albumIdsChan)
 	go ProcessAlbums(albumIdsChan, albumIdChan)
+	go FetchPhotos(albumIdChan, photosChan)
+	go ProcessPhotos(photosChan, urlChan)
 
-	go func(albumIdChan <-chan int, boolChan chan<- bool) {
+	go func(urlChan <-chan string, boolChan chan<- bool) {
 
-		for id := range albumIdChan {
-			fmt.Println(id)
+		for url := range urlChan {
+			fmt.Println(url)
 		}
 		boolChan <- true
 
-	}(albumIdChan, boolChan)
+	}(urlChan, boolChan)
 
 	users := FetchUsers(url)
 
@@ -52,6 +56,41 @@ func main() {
 	close(userIdsChan)
 	<-boolChan
 	fmt.Println(time.Since(t))
+}
+
+func ProcessPhotos(photosChan <-chan []Photo, urlChan chan<- string) {
+	for photos := range photosChan {
+		for _, photo := range photos {
+			urlChan <- photo.Url
+		}
+	}
+	close(urlChan)
+}
+
+func FetchPhotos(albumIdChan <-chan int, photosChan chan<- []Photo) {
+	for id := range albumIdChan {
+
+		photosUrl := url + "photos?albumId=" + strconv.Itoa(id)
+
+		resp, err := http.Get(photosUrl)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var photos []Photo
+
+		err = json.NewDecoder(resp.Body).Decode(&photos)
+
+		resp.Body.Close()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		photosChan <- photos
+	}
+	close(photosChan)
 }
 
 func ProcessAlbums(albumIdsChan <-chan []Album, albumIdChan chan<- int) {
