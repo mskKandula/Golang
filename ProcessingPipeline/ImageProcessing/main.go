@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,6 +24,12 @@ type Photo struct {
 	Url string `json:"url"`
 }
 
+type Image struct {
+	ImageData []byte
+	FileName  string
+	Extension string
+}
+
 const url = "https://jsonplaceholder.typicode.com/"
 
 func main() {
@@ -30,21 +40,40 @@ func main() {
 	albumIdChan := make(chan int)
 	photosChan := make(chan []Photo)
 	urlChan := make(chan string)
+	resultChan := make(chan Image)
 	boolChan := make(chan bool)
 
 	go FetchAlbums(userIdsChan, albumIdsChan)
 	go ProcessAlbums(albumIdsChan, albumIdChan)
 	go FetchPhotos(albumIdChan, photosChan)
 	go ProcessPhotos(photosChan, urlChan)
+	go FetchImages(urlChan, resultChan)
 
-	go func(urlChan <-chan string, boolChan chan<- bool) {
+	go func(resultChan <-chan Image, boolChan chan<- bool) {
+		err := os.Chdir("Images")
 
-		for url := range urlChan {
-			fmt.Println(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for image := range resultChan {
+
+			fileName := image.FileName + "." + image.Extension
+
+			file, err := os.Create(fileName)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			io.Copy(file, bytes.NewReader(image.ImageData))
+
+			file.Close()
+
 		}
 		boolChan <- true
 
-	}(urlChan, boolChan)
+	}(resultChan, boolChan)
 
 	users := FetchUsers(url)
 
@@ -56,6 +85,40 @@ func main() {
 	close(userIdsChan)
 	<-boolChan
 	fmt.Println(time.Since(t))
+}
+
+func FetchImages(urlChan <-chan string, resultChan chan<- Image) {
+	for url := range urlChan {
+
+		resp, err := http.Get(url)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		arr := strings.Split(url, "/")
+		fileName := arr[len(arr)-1]
+
+		contentType := resp.Header.Get("Content-Type")
+		extension := strings.Split(contentType, "/")[1]
+
+		// contentLength := resp.ContentLength
+
+		imageData, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		resp.Body.Close()
+
+		resultChan <- Image{
+			imageData,
+			fileName,
+			extension,
+		}
+	}
+	close(resultChan)
 }
 
 func ProcessPhotos(photosChan <-chan []Photo, urlChan chan<- string) {
