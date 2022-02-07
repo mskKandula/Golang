@@ -10,8 +10,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
+
+var wg sync.WaitGroup
 
 type User struct {
 	Id int `json:"id"`
@@ -35,19 +38,28 @@ const url = "https://jsonplaceholder.typicode.com/"
 func main() {
 	t := time.Now()
 
-	userIdsChan := make(chan int)
-	albumIdsChan := make(chan []Album)
-	albumIdChan := make(chan int)
-	photosChan := make(chan []Photo)
-	urlChan := make(chan string)
-	resultChan := make(chan Image)
+	userIdsChan := make(chan int, 10)
+	albumIdsChan := make(chan []Album, 10)
+	albumIdChan := make(chan int, 100)
+	photosChan := make(chan []Photo, 50)
+	urlChan := make(chan string, 1000)
+	resultChan := make(chan Image, 1000)
 	boolChan := make(chan bool)
 
 	go FetchAlbums(userIdsChan, albumIdsChan)
 	go ProcessAlbums(albumIdsChan, albumIdChan)
 	go FetchPhotos(albumIdChan, photosChan)
 	go ProcessPhotos(photosChan, urlChan)
-	go FetchImages(urlChan, resultChan)
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	for i := 0; i < 500; i++ {
+		go FetchImages(urlChan, resultChan, &wg)
+		wg.Add(1)
+	}
 
 	go func(resultChan <-chan Image, boolChan chan<- bool) {
 		err := os.Chdir("Images")
@@ -87,7 +99,7 @@ func main() {
 	fmt.Println(time.Since(t))
 }
 
-func FetchImages(urlChan <-chan string, resultChan chan<- Image) {
+func FetchImages(urlChan <-chan string, resultChan chan<- Image, wg *sync.WaitGroup) {
 	for url := range urlChan {
 
 		resp, err := http.Get(url)
@@ -118,7 +130,7 @@ func FetchImages(urlChan <-chan string, resultChan chan<- Image) {
 			extension,
 		}
 	}
-	close(resultChan)
+	wg.Done()
 }
 
 func ProcessPhotos(photosChan <-chan []Photo, urlChan chan<- string) {
