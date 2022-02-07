@@ -33,6 +33,14 @@ type Image struct {
 	Extension string
 }
 
+// file path creation
+// func create(p string) (*os.File, error) {
+//     if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
+//         return nil, err
+//     }
+//     return os.Create(p)
+// }
+
 const url = "https://jsonplaceholder.typicode.com/"
 
 func main() {
@@ -51,41 +59,17 @@ func main() {
 	go FetchPhotos(albumIdChan, photosChan)
 	go ProcessPhotos(photosChan, urlChan)
 
-	go func() {
-		wg.Wait()
-		close(resultChan)
-	}()
-
 	for i := 0; i < 500; i++ {
 		go FetchImages(urlChan, resultChan, &wg)
 		wg.Add(1)
 	}
 
-	go func(resultChan <-chan Image, boolChan chan<- bool) {
-		err := os.Chdir("Images")
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
 
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for image := range resultChan {
-
-			fileName := image.FileName + "." + image.Extension
-
-			file, err := os.Create(fileName)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			io.Copy(file, bytes.NewReader(image.ImageData))
-
-			file.Close()
-
-		}
-		boolChan <- true
-
-	}(resultChan, boolChan)
+	go SaveImages(resultChan, boolChan)
 
 	users := FetchUsers(url)
 
@@ -96,7 +80,34 @@ func main() {
 	}
 	close(userIdsChan)
 	<-boolChan
-	fmt.Println(time.Since(t))
+
+	fmt.Println("Total time taken : ", time.Since(t))
+}
+
+func SaveImages(resultChan <-chan Image, boolChan chan<- bool) {
+	err := os.Chdir("Images")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for image := range resultChan {
+
+		fileName := image.FileName + "." + image.Extension
+
+		file, err := os.Create(fileName)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		io.Copy(file, bytes.NewReader(image.ImageData))
+
+		file.Close()
+
+	}
+	boolChan <- true
+
 }
 
 func FetchImages(urlChan <-chan string, resultChan chan<- Image, wg *sync.WaitGroup) {
