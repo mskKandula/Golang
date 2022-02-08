@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -8,6 +9,13 @@ import (
 type D struct {
 	momentData    int
 	doubleChannel chan chan int
+}
+
+func (d *D) getData() int {
+	responseChan := make(chan int)
+	d.doubleChannel <- responseChan
+	response := <-responseChan
+	return response
 }
 
 func (d *D) run() {
@@ -39,4 +47,6 @@ func main() {
 	go d.run()
 
 	time.Sleep(1 * time.Second)
+
+	fmt.Println(d.getData())
 }
