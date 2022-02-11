@@ -10,9 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-
-type IntegerArray struct{
-	Intarr [] int `json : intarr`
+type IntegerArray struct {
+	Intarr []int `json : intarr`
 }
 
 // We'll need to define an Upgrader
@@ -28,18 +27,18 @@ func writer(conn *websocket.Conn) {
 
 	for {
 		rand.Seed(time.Now().UnixNano())
-     
-		i :=&IntegerArray{
-			
-			// creating an integer array of size 12 with random elements 
-			Intarr : rand.Perm(12),
+
+		i := &IntegerArray{
+
+			// creating an integer array of size 12 with random elements
+			Intarr: rand.Perm(12),
 		}
 
 		if err := conn.WriteJSON(i); err != nil {
 			log.Println(err)
 			return
 		}
-		
+
 		time.Sleep(3 * time.Second)
 	}
 }
@@ -49,11 +48,12 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
-	
+
 	// upgrade this connection to a WebSocket connection
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	log.Println("Client Connected")
@@ -61,16 +61,16 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	err = ws.WriteMessage(1, []byte("Hi Client!"))
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	// writes new messages indefinitely to our WebSocket connection
 	writer(ws)
 }
 
-
 func main() {
 	fmt.Println("Hello World")
-	
+
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/ws", wsEndpoint)
 
