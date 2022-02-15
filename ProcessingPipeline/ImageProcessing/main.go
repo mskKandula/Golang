@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,7 +25,8 @@ type Album struct {
 }
 
 type Photo struct {
-	Url string `json:"url"`
+	AlbumId int    `json:"albumId"`
+	Url     string `json:"url"`
 }
 
 type Image struct {
@@ -34,12 +36,12 @@ type Image struct {
 }
 
 // file path creation
-// func create(p string) (*os.File, error) {
-//     if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
-//         return nil, err
-//     }
-//     return os.Create(p)
-// }
+func create(p string) (*os.File, error) {
+	if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
+		return nil, err
+	}
+	return os.Create(p)
+}
 
 const url = "https://jsonplaceholder.typicode.com/"
 
@@ -50,17 +52,17 @@ func main() {
 	albumIdsChan := make(chan []Album, 10)
 	albumIdChan := make(chan int, 100)
 	photosChan := make(chan []Photo, 50)
-	urlChan := make(chan string, 1000)
+	photoChan := make(chan Photo, 1000)
 	resultChan := make(chan Image, 1000)
 	boolChan := make(chan bool)
 
 	go FetchAlbums(userIdsChan, albumIdsChan)
 	go ProcessAlbums(albumIdsChan, albumIdChan)
 	go FetchPhotos(albumIdChan, photosChan)
-	go ProcessPhotos(photosChan, urlChan)
+	go ProcessPhotos(photosChan, photoChan)
 
 	for i := 0; i < 500; i++ {
-		go FetchImages(urlChan, resultChan, &wg)
+		go FetchImages(photoChan, resultChan, &wg)
 		wg.Add(1)
 	}
 
@@ -95,7 +97,7 @@ func SaveImages(resultChan <-chan Image, boolChan chan<- bool) {
 
 		fileName := image.FileName + "." + image.Extension
 
-		file, err := os.Create(fileName)
+		file, err := create(fileName)
 
 		if err != nil {
 			log.Fatal(err)
@@ -110,8 +112,10 @@ func SaveImages(resultChan <-chan Image, boolChan chan<- bool) {
 
 }
 
-func FetchImages(urlChan <-chan string, resultChan chan<- Image, wg *sync.WaitGroup) {
-	for url := range urlChan {
+func FetchImages(photoChan <-chan Photo, resultChan chan<- Image, wg *sync.WaitGroup) {
+	for photo := range photoChan {
+
+		url := photo.Url
 
 		resp, err := http.Get(url)
 
@@ -120,7 +124,8 @@ func FetchImages(urlChan <-chan string, resultChan chan<- Image, wg *sync.WaitGr
 		}
 
 		arr := strings.Split(url, "/")
-		fileName := arr[len(arr)-1]
+
+		fileName := strconv.Itoa(photo.AlbumId) + "/" + arr[len(arr)-1]
 
 		contentType := resp.Header.Get("Content-Type")
 		extension := strings.Split(contentType, "/")[1]
@@ -144,13 +149,13 @@ func FetchImages(urlChan <-chan string, resultChan chan<- Image, wg *sync.WaitGr
 	wg.Done()
 }
 
-func ProcessPhotos(photosChan <-chan []Photo, urlChan chan<- string) {
+func ProcessPhotos(photosChan <-chan []Photo, photoChan chan<- Photo) {
 	for photos := range photosChan {
 		for _, photo := range photos {
-			urlChan <- photo.Url
+			photoChan <- photo
 		}
 	}
-	close(urlChan)
+	close(photoChan)
 }
 
 func FetchPhotos(albumIdChan <-chan int, photosChan chan<- []Photo) {
