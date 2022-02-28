@@ -29,6 +29,9 @@ func (r *Room) Init() {
 func (r *Room) GetParticipants(roomId string) []Participant {
 	r.Mutex.RLock()
 	defer r.Mutex.RUnlock()
+	if _, ok := r.Users[roomId]; !ok {
+		return nil
+	}
 	return r.Users[roomId]
 
 }
@@ -50,4 +53,30 @@ func (r *Room) RoomCreation() string {
 	r.Users[roomId] = []Participant{}
 
 	return roomId
+}
+
+// Insertion of participants into room
+func (r *Room) InsertIntoRoom(roomId string, conn *websocket.Conn, host bool) {
+
+	r.Mutex.Lock()
+	defer r.Mutex.Unlock()
+	if _, ok := r.Users[roomId]; !ok {
+		return
+	}
+
+	participant := Participant{conn, host}
+
+	r.Users[roomId] = append(r.Users[roomId], participant)
+
+}
+
+// Deletion of room
+func (r *Room) DeleteRoom(roomId string) {
+	r.Mutex.Lock()
+	defer r.Mutex.Unlock()
+	if _, ok := r.Users[roomId]; !ok {
+		return
+	}
+
+	delete(r.Users, roomId)
 }
