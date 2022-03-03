@@ -8,6 +8,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type broadcastMsg struct {
+	Message map[string]interface{}
+	RoomId  string
+	Client  *websocket.Conn
+}
+
 var (
 	room     Room
 	upgrader = websocket.Upgrader{
@@ -15,6 +21,7 @@ var (
 			return true
 		},
 	}
+	broadcast = make(chan broadcastMsg)
 )
 
 func CreateRoom(w http.ResponseWriter, r *http.Request) {
@@ -59,5 +66,23 @@ func JoinRoom(w http.ResponseWriter, r *http.Request) {
 		log.Println(msg.Message)
 
 		broadcast <- msg
+	}
+}
+
+func broadcaster() {
+	for {
+		msg := <-broadcast
+
+		for _, client := range room.Users[msg.RoomId] {
+			if client.Conn != msg.Client {
+				err := client.Conn.WriteJSON(msg.Message)
+
+				if err != nil {
+					log.Fatal(err)
+					client.Conn.Close()
+					delete(room.Users, msg.RoomId)
+				}
+			}
+		}
 	}
 }
