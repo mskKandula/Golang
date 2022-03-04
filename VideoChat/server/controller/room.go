@@ -21,9 +21,9 @@ type Room struct {
 }
 
 // Initializing
-func (r *Room) Init() {
-	r.Users = make(map[string][]Participant)
-}
+// func (r *Room) Iniit() {
+// 	r.Users = make(map[string][]Participant)
+// }
 
 // Return the Participants based on roomId
 func (r *Room) GetParticipants(roomId string) []Participant {
@@ -49,7 +49,7 @@ func (r *Room) RoomCreation() string {
 	}
 
 	roomId := string(b)
-
+	r.Users = make(map[string][]Participant)
 	r.Users[roomId] = []Participant{}
 
 	return roomId
