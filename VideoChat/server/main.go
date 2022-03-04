@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	var room controller.Room
-	room.Iniit()
+	// var room controller.Room
+	// room.Iniit()
 
 	http.HandleFunc("/create", controller.CreateRoom)
 	http.HandleFunc("/join", controller.JoinRoom)
