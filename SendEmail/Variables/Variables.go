@@ -1,8 +1,11 @@
 package Variables
 
-var Password string
+var (
+	SenderEmail         string
+	SenderEmailPassword string
+)
 
-func init(){
-	Password = "SenderEmailPassword"
+func init() {
+	SenderEmail = "SenderEmailId"
+	SenderEmailPassword = "SenderEmailPassword"
 }
-

@@ -2,44 +2,46 @@ package main
 
 import (
 	"bytes"
-	"html/template"
-	"gopkg.in/gomail.v2"
 	"fmt"
+	"html/template"
+	"log"
+
 	"github.com/mskKandula/Variables"
+	"gopkg.in/gomail.v2"
 )
 
-type basicDetails struct{
-	Name string
+type basicDetails struct {
+	Name  string
 	Email string
 }
 
 var user = basicDetails{
-	Name:"UserName",
-	Email:"UserName@gmail.com",
+	Name:  "RecieverUserName",
+	Email: "RecieverEmailId",
 }
 
+func main() {
 
-func main(){
+	body, err := makeTemplate(user, "./registrationMailTemplate.html")
 
-body,err := makeTemplate(user,"./registrationMailTemplate.html")
-
-if err!= nil{
+	if err != nil {
 		panic(err)
 	}
 
-m := gomail.NewMessage() 
-m.SetHeader("From", "sender@gmail.com")
-m.SetHeader("To", "reciever@gmail.com")
-m.SetHeader("Subject", "Registration Successfull!")
-m.SetBody("text/html", body)
+	m := gomail.NewMessage()
+	m.SetHeader("From", Variables.SenderEmail)
+	m.SetHeader("To", user.Email)
+	m.SetHeader("Subject", "Registration Successfull!")
+	m.SetBody("text/html", body)
 
-d := gomail.NewPlainDialer("smtp.gmail.com",587,"sender@gmail.com",Variables.Password)
+	d := gomail.NewDialer("smtp.gmail.com", 587, Variables.SenderEmail, Variables.SenderEmailPassword)
 
-if err := d.DialAndSend(m); err != nil {
-	panic(err)
-}
+	if err := d.DialAndSend(m); err != nil {
+		log.Println(err)
+		return
+	}
 
-fmt.Println("Email Sent")
+	fmt.Println("Email Sent")
 
 }
 
