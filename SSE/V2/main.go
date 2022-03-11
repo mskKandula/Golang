@@ -112,3 +112,17 @@ func getClient() *Client {
 	s := clientsList[r]
 	return clients[s]
 }
+
+func updateInventory() *Store {
+	inv := &Store{}
+	inv.Items = make(map[string]Item)
+	a := Item{Name: "Books", Price: 33.59, Quantity: int(rand.Int31() % 53)}
+	inv.Items["book"] = a
+	a = Item{Name: "Bicycles", Price: 190.89, Quantity: int(rand.Int31() % 232)}
+	inv.Items["bicycle"] = a
+	a = Item{Name: "Water Bottles", Price: 10.02, Quantity: int(rand.Int31() % 93)}
+	inv.Items["wbottle"] = a
+	a = Item{Name: "RC Car", Price: 83.19, Quantity: int(rand.Int31() % 73)}
+	inv.Items["rccar"] = a
+	return inv
+}
