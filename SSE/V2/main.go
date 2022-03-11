@@ -95,3 +95,10 @@ func updateDashboard() {
 		}
 	}
 }
+
+func addClient(s string) *Client {
+	c := &Client{name: s, events: make(chan *DashBoard, 10)}
+	clients[s] = c
+	clientsList = append(clientsList, s)
+	return c
+}
