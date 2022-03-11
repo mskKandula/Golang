@@ -102,3 +102,13 @@ func addClient(s string) *Client {
 	clientsList = append(clientsList, s)
 	return c
 }
+
+func getClient() *Client {
+	if 0 == len(clientsList) {
+		return nil
+	}
+
+	r := rand.Int() % len(clientsList)
+	s := clientsList[r]
+	return clients[s]
+}
