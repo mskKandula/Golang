@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -41,7 +42,7 @@ type (
 func main() {
 	fmt.Println("Hello")
 	clients = make(map[string]*Client)
-
+	go updateDashboard()
 	// register static files handle '/index.html -> client/index.html'
 	// http.Handle("/", http.FileServer(http.Dir("client")))
 	// register RESTful handler for '/sse/dashboard'
@@ -74,5 +75,23 @@ func dashbaordHandler(w http.ResponseWriter, r *http.Request) {
 
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
+	}
+}
+
+func updateDashboard() {
+	for {
+		inv := updateInventory()
+		db := &DashBoard{
+			Users:         uint(rand.Uint32()),
+			UsersLoggedIn: uint(rand.Uint32() % 200),
+			Inventory:     inv,
+			ChartOne:      []int{2, 35, 634, 93, 390432},
+			ChartTwo:      []Currency{3.59, 6.09, 563.90},
+		}
+
+		client := getClient()
+		if nil != client {
+			client.events <- db
+		}
 	}
 }
