@@ -8,6 +8,21 @@ import (
 	"time"
 )
 
+type Row struct {
+	Business   string    `csv:"businessname" db:"business_name"`
+	Licstatus  string    `csv:"licstatus" db:"license_status"`
+	Result     string    `csv:"result" db:"result"`
+	Violdesc   string    `csv:"violdesc" db:"description"`
+	Violdttm   time.Time `csv:"violdttm" db:"time"`
+	Violstatus string    `csv:"violstatus" db:"status"`
+	Viollevel  string    `csv:"viollevel" db:"-"`
+	Level      int       `db:"level"`
+	Comments   string    `csv:"comments" db:"comments"`
+	Address    string    `csv:"address" db:"address"`
+	City       string    `csv:"city" db:"city"`
+	Zip        string    `csv:"zip" db:"zip"`
+}
+
 func main() {
 	file, err := os.Open("boston.csv")
 	if err != nil {
