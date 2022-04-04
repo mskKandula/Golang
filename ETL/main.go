@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Row struct {
@@ -23,6 +26,12 @@ type Row struct {
 	Zip        string    `csv:"zip" db:"zip"`
 }
 
+var (
+	db          *sql.DB
+	err         error
+	insertQuery string
+)
+
 func main() {
 	file, err := os.Open("boston.csv")
 	if err != nil {
@@ -30,9 +39,22 @@ func main() {
 	}
 	defer file.Close()
 
+	db, err = sql.Open("mysql", "UserName:Password@tcp(IP:Port)/DB")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer db.Close()
+
+	insertQuery = "INSERT INTO violations VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+
+	stmt, err := db.Prepare(insertQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	start := time.Now()
 
-	_, _, err = ETL(file)
+	_, _, err = ETL(file, stmt)
 
 	duration := time.Since(start)
 	if err != nil {
@@ -41,7 +63,7 @@ func main() {
 	fmt.Println("Time Taken to Process: ", duration)
 }
 
-func ETL(csvFile io.Reader) (int, int, error) {
+func ETL(csvFile io.Reader, stmt *sql.Stmt) (int, int, error) {
 
 }
 
