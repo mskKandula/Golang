@@ -41,3 +41,9 @@ func parseLevel(value string) int {
 	}
 	return -1
 }
+
+func unmarshalTime(data []byte, t *time.Time) error {
+	var err error
+	*t, err = time.Parse("2006-01-02 15:04:05", string(data))
+	return err
+}
