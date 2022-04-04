@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jszwec/csvutil"
 )
 
 type Row struct {
@@ -54,17 +56,49 @@ func main() {
 
 	start := time.Now()
 
-	_, _, err = ETL(file, stmt)
+	numRecords, numErrors, err := ETL(file, stmt)
 
 	duration := time.Since(start)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Time Taken to Process: ", duration)
+
+	frac := float64(numErrors) / float64(numRecords)
+	if frac > 0.1 {
+		log.Fatalf("too many errors: %d/%d = %f", numErrors, numRecords, frac)
+	}
+	fmt.Printf("%d records (%.2f errors) in %v\n", numRecords, frac, duration)
 }
 
 func ETL(csvFile io.Reader, stmt *sql.Stmt) (int, int, error) {
+	r := csv.NewReader(csvFile)
+	dec, err := csvutil.NewDecoder(r)
+	if err != nil {
+		return 0, 0, err
+	}
+	dec.Register(unmarshalTime)
+	numRecords := 0
+	numErrors := 0
 
+	for {
+		numRecords++
+		var row Row
+		err = dec.Decode(&row)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("error: %d: %s", numRecords, err)
+			numErrors++
+			continue
+		}
+		row.Level = parseLevel(row.Viollevel)
+		if _, err := stmt.Exec(row); err != nil {
+			return 0, 0, err
+		}
+	}
+
+	return numRecords, numErrors, nil
 }
 
 func parseLevel(value string) int {
@@ -80,7 +114,6 @@ func parseLevel(value string) int {
 }
 
 func unmarshalTime(data []byte, t *time.Time) error {
-	var err error
 	*t, err = time.Parse("2006-01-02 15:04:05", string(data))
 	return err
 }
