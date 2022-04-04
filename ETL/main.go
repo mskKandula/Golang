@@ -27,4 +27,17 @@ func main() {
 }
 
 func ETL(csvFile io.Reader) (int, int, error) {
+
+}
+
+func parseLevel(value string) int {
+	switch value {
+	case "*":
+		return 1
+	case "**":
+		return 2
+	case "***":
+		return 3
+	}
+	return -1
 }
