@@ -34,11 +34,18 @@ func streamHandler(response http.ResponseWriter, request *http.Request) {
 
 	mediaBase := getMediaBase(mId)
 
-	fmt.Println(mediaBase)
+	m3u8Name := "index.m3u8"
+	serveHlsM3u8(response, request, mediaBase, m3u8Name)
 
 }
 
 func getMediaBase(mId int) string {
 	mediaRoot := "../assets/media"
 	return fmt.Sprintf("%s/%d", mediaRoot, mId)
+}
+
+func serveHlsM3u8(w http.ResponseWriter, r *http.Request, mediaBase, m3u8Name string) {
+	mediaFile := fmt.Sprintf("%s/%s", mediaBase, m3u8Name)
+	http.ServeFile(w, r, mediaFile)
+	w.Header().Set("Content-Type", "application/x-mpegURL")
 }
