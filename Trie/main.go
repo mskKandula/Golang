@@ -60,4 +60,21 @@ func (t *trie) readFileAndInsert(fileName string) {
 	}
 }
 
-func (t *trie) insert(word string) {}
+func (t *trie) insert(word string) {
+	// wordLength := len(word)
+	current := t.root
+
+	for _, letter := range word {
+		//To get the index of a character,
+		// For example c-a would be translated to (99–97)=2 which is index of c.
+		index := letter - 'a'
+
+		if current.childrens[index] == nil {
+			current.childrens[index] = &node{character: letter}
+		}
+
+		current = current.childrens[index]
+	}
+
+	current.isWordEnd = true
+}
