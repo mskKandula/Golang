@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -32,6 +33,19 @@ func main() {
 	trie := initTrie()
 
 	trie.readFileAndInsert(fileName)
+
+	wordsToFind := []string{"computer", "golang", "programming", "hobby"}
+
+	for i := 0; i < len(wordsToFind); i++ {
+
+		found := trie.search(wordsToFind[i])
+		if found {
+			fmt.Printf("Word \"%s\" found in trie\n", wordsToFind[i])
+		} else {
+			fmt.Printf("Word \"%s\" not found in trie\n", wordsToFind[i])
+		}
+	}
+
 }
 
 func (t *trie) readFileAndInsert(fileName string) {
@@ -77,4 +91,25 @@ func (t *trie) insert(word string) {
 	}
 
 	current.isWordEnd = true
+}
+
+func (t *trie) search(word string) bool {
+	wordLength := len(word)
+	current := t.root
+
+	for i := 0; i < wordLength; i++ {
+		index := word[i] - 'a'
+
+		if current == nil || current.childrens[index] == nil {
+			return false
+		}
+
+		current = current.childrens[index]
+	}
+
+	if current.isWordEnd {
+		return true
+	}
+
+	return false
 }
