@@ -142,4 +142,22 @@ func (t *trie) autoComplete(word string) {
 	return
 }
 
-func (t *trie) traversal(word string, words []string) []string {}
+func (t *trie) traversal(word string, words []string) []string {
+	current := t.root
+
+	if current.isWordEnd {
+		words = append(words, word)
+		return words
+	}
+
+	for _, localCurrent := range current.childrens {
+		if localCurrent != nil {
+			makeWord := word + string(localCurrent.character)
+			index := localCurrent.character - 'a'
+			t.root = current.childrens[index]
+			words = t.traversal(makeWord, words)
+		}
+	}
+
+	return words
+}
