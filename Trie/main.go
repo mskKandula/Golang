@@ -113,3 +113,33 @@ func (t *trie) search(word string) bool {
 
 	return false
 }
+
+func (t *trie) autoComplete(word string) {
+	var words []string
+
+	current := t.root
+
+	for _, char := range word {
+
+		index := char - 'a'
+
+		if current.childrens[index] == nil {
+			return
+		}
+
+		current = current.childrens[index]
+	}
+
+	t.root = current
+
+	suggestions := t.traversal(word, words)
+
+	fmt.Printf("The Auto Completion words for %s are :\n ", word)
+	for _, suggestion := range suggestions {
+		fmt.Println(suggestion)
+	}
+
+	return
+}
+
+func (t *trie) traversal(word string, words []string) []string {}
