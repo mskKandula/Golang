@@ -45,7 +45,7 @@ func main() {
 			fmt.Printf("Word \"%s\" not found in trie\n", wordsToFind[i])
 		}
 	}
-
+	trie.autoComplete("abac")
 }
 
 func (t *trie) readFileAndInsert(fileName string) {
