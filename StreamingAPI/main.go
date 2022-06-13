@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -57,4 +59,12 @@ func fileHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"fileUploaded": "Success"})
 
+}
+
+// file path creation
+func create(p string) (*os.File, error) {
+	if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
+		return nil, err
+	}
+	return os.Create(p)
 }
