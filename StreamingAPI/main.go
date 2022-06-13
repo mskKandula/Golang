@@ -12,8 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+var (
+	bufChan = make(chan string, 10)
+)
 
+func main() {
+	go asyncHLSConversion(bufChan)
+
+	defer func() {
+		close(bufChan)
+	}()
 	r := gin.Default()
 	r.POST("/handle", fileHandler)
 	r.Run(":8081")
@@ -59,7 +67,7 @@ func fileHandler(c *gin.Context) {
 
 	defer dstFile.Close()
 
-	hlsConversion(path)
+	bufChan <- path
 
 	c.JSON(http.StatusOK, gin.H{"fileUploaded": "Success"})
 
@@ -73,45 +81,47 @@ func create(p string) (*os.File, error) {
 	return os.Create(p)
 }
 
-func hlsConversion(filePath string) {
+func asyncHLSConversion(filePaths <-chan string) {
 
-	paths := strings.Split(filePath, "/")
+	for filePath := range filePaths {
+		paths := strings.Split(filePath, "/")
 
-	path := paths[0] + "/" + paths[1]
+		path := paths[0] + "/" + paths[1]
 
-	err := os.Chdir(path)
+		err := os.Chdir(path)
 
-	if err != nil {
-		fmt.Println(err.Error())
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		cmd := exec.Command("ffmpeg", "-i", paths[2], "-codec:", "copy", "-start_number", "0", "-hls_time", "10", "-hls_list_size", "0", "-f", "hls", "index.m3u8")
+
+		err = cmd.Run()
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		imageFileName := paths[2] + ".png"
+
+		cmd = exec.Command("ffmpeg", "-i", paths[2], "-ss", "00:00:01.000", "-vframes", "1", imageFileName)
+
+		err = cmd.Run()
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		err = os.Remove(paths[2])
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		err = os.Chdir("../..")
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
 	}
-
-	cmd := exec.Command("ffmpeg", "-i", paths[2], "-codec:", "copy", "-start_number", "0", "-hls_time", "10", "-hls_list_size", "0", "-f", "hls", "index.m3u8")
-
-	err = cmd.Run()
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	imageFileName := paths[2] + ".png"
-
-	cmd = exec.Command("ffmpeg", "-i", paths[2], "-ss", "00:00:01.000", "-vframes", "1", imageFileName)
-
-	err = cmd.Run()
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	err = os.Remove(paths[2])
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	err = os.Chdir("../..")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
 }
