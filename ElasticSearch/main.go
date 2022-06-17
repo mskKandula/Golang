@@ -23,25 +23,10 @@ func main() {
 		panic("Client fail ")
 	}
 
-	//creating student object
-	newStudent := Student{
-		Name:         "ABC",
-		Age:          18,
-		AverageScore: 75.5,
-	}
-
-	dataJSON, err := json.Marshal(newStudent)
-	js := string(dataJSON)
-	_, err = esclient.Index().
-		Index("students").
-		BodyJson(js).
-		Do(ctx)
-
+	err = DataInsertion(esclient, ctx)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("[Elastic][InsertProduct]Insertion Successful")
 
 	searchResults, err := DataSearch(esclient, ctx, "ABC")
 	if err != nil {
@@ -110,4 +95,30 @@ func DataSearch(esclient *elastic.Client, ctx context.Context, searchString stri
 	}
 
 	return students, nil
+}
+
+func DataInsertion(esclient *elastic.Client, ctx context.Context) error {
+
+	//creating student object
+	newStudent := Student{
+		Name:         "ABC",
+		Age:          18,
+		AverageScore: 75.5,
+	}
+
+	dataJSON, err := json.Marshal(newStudent)
+
+	js := string(dataJSON)
+	_, err = esclient.Index().
+		Index("students").
+		BodyJson(js).
+		Do(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("[Elastic][InsertProduct]Insertion Successful")
+
+	return nil
 }
