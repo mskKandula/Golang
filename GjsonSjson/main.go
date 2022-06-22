@@ -19,5 +19,7 @@ func main() {
 	strParse := gjson.Parse(str)
 	fmt.Println(strParse)
 	fmt.Println(reflect.TypeOf(&strParse))
+	fmt.Println(`{"golang":{` + strParse.String() + `}`)
+	fmt.Println(reflect.TypeOf(strParse.String()))
 	fmt.Println(reflect.TypeOf(strParse.Value()))
 }
