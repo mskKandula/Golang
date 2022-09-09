@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -32,6 +33,7 @@ func main() {
 	router.HandleFunc("/posts/{id}", getPost).Methods("GET")
 	router.HandleFunc("/posts/{id}", updatePost).Methods("PUT")
 	router.HandleFunc("/posts/{id}", deletePost).Methods("DELETE")
+	router.HandleFunc("/search", searchPosts).Methods("POST")
 	http.ListenAndServe(":8000", router)
 }
 func getPosts(w http.ResponseWriter, r *http.Request) {
@@ -132,4 +134,33 @@ func deletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Post with ID = %s was deleted", params["id"])
+}
+func searchPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	keyVal := make(map[string]interface{})
+	json.Unmarshal(body, &keyVal)
+	// ids := strings.Join(keyVal["ids"].([]string), "','")
+	// sqlRaw := fmt.Sprintf(`SELECT title FROM Posts WHERE id IN ('%s')`, ids)
+	stmt := `SELECT title FROM Posts WHERE id in (?` + strings.Repeat(",?", len(keyVal["ids"].([]string))-1) + `)`
+	rows, err := db.Query(stmt, keyVal["ids"].([]interface{})...)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+	posts := []Post{}
+	for rows.Next() {
+		var post Post
+		if err := rows.Scan(&post.Title); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		posts = append(posts, post)
+	}
+	json.NewEncoder(w).Encode(posts)
 }
