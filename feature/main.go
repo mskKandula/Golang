@@ -1,11 +1,18 @@
 package main
 
-import(
+import (
 	"fmt"
+	"os"
+	"path/filepath"
 )
 
-func main(){
-	var a int
-	a =12
-	fmt.Println(a)
+func main() {
+	wd, _ := os.Getwd()
+
+	path := filepath.Join(wd, "temp", "main.txt")
+	_, err := os.Create(path)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }
