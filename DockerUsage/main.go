@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	db, err = sql.Open("mysql", "testing:secret@tcp(db:3306)/users")
+	db, err = sql.Open("mysql", "root:root@tcp(db:3306)/Users")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
