@@ -39,22 +39,30 @@ func coffeShop(w http.ResponseWriter, r *http.Request) {
 func makeCoffee(wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	go handlePayment()
-	go steamMilk()
-	go makeEspresso()
+	var newWg sync.WaitGroup
+	newWg.Add(3)
+
+	go handlePayment(&newWg)
+	go steamMilk(&newWg)
+	go makeEspresso(&newWg)
+
+	newWg.Wait()
 }
 
-func handlePayment() {
+func handlePayment(newWg *sync.WaitGroup) {
+	defer newWg.Done()
 	fmt.Println("Making Payment")
 	time.Sleep(2 * time.Second)
 }
 
-func steamMilk() {
+func steamMilk(newWg *sync.WaitGroup) {
+	defer newWg.Done()
 	fmt.Println("Steaming Milk")
 	time.Sleep(2 * time.Second)
 }
 
-func makeEspresso() {
+func makeEspresso(newWg *sync.WaitGroup) {
+	defer newWg.Done()
 	fmt.Println("Making Espresso")
 	time.Sleep(2 * time.Second)
 }
