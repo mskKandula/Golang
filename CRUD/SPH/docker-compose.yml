@@ -1,0 +1,39 @@
+version: '3.0'
+
+services:
+  db:
+    container_name: "sph_db"
+    build:
+      context: .
+      dockerfile: ./MySQL/Dockerfile
+    networks:
+      - default
+    restart: always
+    expose: ["3306"]
+    # setting some env vars
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "SPH"
+
+      # we mount a data volume to make sure we don't lose data
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  server:
+    container_name: "sph_server"
+    # we want to use the image which is build from our Dockerfile
+    build:
+      context: .
+      dockerfile: ./Server/Dockerfile
+    expose: ["8080"]
+    ports:
+     - "8080:8080"
+    # we are depending on the mysql(db) & redis (cache) 
+    depends_on:
+      - db
+    networks:
+      - default
+    # We mount the working dir into the container, handy for development
+    # This is what makes the hot reloading work inside of a Docker container
+    restart: always
