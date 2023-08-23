@@ -53,7 +53,7 @@ func serveWs(pool *websock.Pool, w http.ResponseWriter, r *http.Request) {
 		Pool: pool,
 	}
 
-	go client.Read()
+	// go client.Read()
 
 	pool.Register <- client
 }

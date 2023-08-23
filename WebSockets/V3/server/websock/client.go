@@ -14,22 +14,22 @@ type Client struct {
 }
 
 func (c *Client) Read() {
-	defer func() {
-		c.Pool.Unregister <- c
-		c.Conn.Close()
-	}()
+	// defer func() {
+	// 	c.Pool.Unregister <- c
+	// 	c.Conn.Close()
+	// }()
 
 	// Start endless read loop, waiting for messages from client
-	for {
+	// for {
 
-		byteData, _, err := wsutil.ReadClientData(c.Conn)
-		if err != nil {
-			log.Println(err)
-			break
-		}
-
-		c.Pool.Broadcast <- byteData
-
-		fmt.Printf("Message Received: %+v\n", string(byteData))
+	byteData, _, err := wsutil.ReadClientData(c.Conn)
+	if err != nil {
+		log.Println(err)
+		return
 	}
+
+	c.Pool.Broadcast <- byteData
+
+	fmt.Printf("Message Received: %+v\n", string(byteData))
+	// }
 }
