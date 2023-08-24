@@ -1,0 +1,38 @@
+version: "3.0"
+
+services:
+  server:
+    container_name: "conn_server"
+    # we want to use the image which is build from our Dockerfile
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    expose: ["8000"]
+    ports:
+      - "8000:8000"
+
+    networks:
+      - default
+    # We mount the working dir into the container, handy for development
+    # This is what makes the hot reloading work inside of a Docker container
+    restart: always
+
+  client:
+    container_name: "conn_client"
+    privileged: true
+    # we want to use the image which is build from our Dockerfile
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    # we are depending on the mysql(db) & redis (cache)
+    depends_on:
+      - server
+
+    networks:
+      - default
+    # We mount the working dir into the container, handy for development
+    restart: always
+
+networks:
+  default:
+    driver: bridge
