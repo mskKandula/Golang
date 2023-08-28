@@ -23,12 +23,7 @@ RUN go build -o main .
 #Define the running image
 FROM alpine:3.17
 
-# echo 10000 65535 > /proc/sys/net/ipv4/ip_local_port_range
-
-# WORKDIR /etc/sysctl.d
-
-# Copy configuration
-# COPY ../portExtend/net.ipv4.ip_local_port_range.conf /etc/sysctl.d/
+# RUN echo 'net.ipv4.ip_local_port_range = 10000 65535' >> /etc/sysctl.conf
 
 RUN apk update && \
     apk upgrade

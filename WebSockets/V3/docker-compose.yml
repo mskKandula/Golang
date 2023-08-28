@@ -18,8 +18,8 @@ services:
     restart: always
 
   client:
-    container_name: "conn_client"
-    privileged: true
+    # container_name: "conn_client"
+    # privileged: true
     # we want to use the image which is build from our Dockerfile
     build:
       context: .
@@ -30,6 +30,14 @@ services:
 
     networks:
       - default
+
+    sysctls:
+      net.ipv4.ip_local_port_range: 10000 65535
+
+    deploy:
+      mode: replicated
+      replicas: 2
+
     # We mount the working dir into the container, handy for development
     restart: always
 
