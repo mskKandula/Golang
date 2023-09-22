@@ -35,6 +35,10 @@ func main() {
 
 	go pool.Start()
 
+	for i := 0; i < 100; i++ {
+		go websock.Read(websock.ClientConnChan)
+	}
+
 	r.GET("/ws", func(c *gin.Context) {
 		serveWs(pool, c.Writer, c.Request)
 	})

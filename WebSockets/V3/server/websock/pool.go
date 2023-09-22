@@ -14,7 +14,10 @@ type Pool struct {
 	Broadcast  chan []byte
 }
 
-var poolInit *Pool
+var (
+	poolInit       *Pool
+	ClientConnChan chan *Client
+)
 
 func init() {
 	poolInit = &Pool{
@@ -23,6 +26,7 @@ func init() {
 		Clients:    make(map[string][]*Client),
 		Broadcast:  make(chan []byte),
 	}
+	ClientConnChan = make(chan *Client, 200)
 }
 
 func NewPool() *Pool {
@@ -54,7 +58,7 @@ func (pool *Pool) Start() {
 					client.Conn.Close()
 					return
 				}
-				go client.Read()
+				ClientConnChan <- client
 			})
 
 			if len(pool.Clients["test"])%1000 == 0 {
