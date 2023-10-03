@@ -5,6 +5,9 @@ RUN apk update && \
     apk upgrade && \
     apk add git
 
+# Install gcc & other related 
+# RUN apk add build-base
+
 # Set the Current Working Directory inside the container
 WORKDIR /app/V3/server
 
