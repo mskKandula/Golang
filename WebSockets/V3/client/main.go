@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ip          = flag.String("ip", "server", "server IP")
+	ip          = flag.String("ip", "ngin", "server IP")
 	connections = flag.Int("conn", 55000, "number of websocket connections")
 )
 
@@ -27,7 +27,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 	}
 	flag.Parse()
 
-	u := url.URL{Scheme: "ws", Host: *ip + ":8000", Path: "/ws"}
+	u := url.URL{Scheme: "ws", Host: *ip + ":8020", Path: "/ws"}
 	log.Printf("Connecting to %s", u.String())
 	var conns []*websocket.Conn
 	for i := 0; i < *connections; i++ {
