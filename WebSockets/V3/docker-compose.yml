@@ -28,6 +28,9 @@ services:
       - "8020:8020"
     networks:
       - default
+
+    sysctls:
+      net.ipv4.ip_local_port_range: 10000 65535
     # We mount the working dir into the container, handy for development
     # This is what makes the hot reloading work inside of a Docker container
     restart: always
