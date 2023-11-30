@@ -1,6 +1,7 @@
 package websock
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -33,9 +34,14 @@ func NewPool() *Pool {
 	return poolInit
 }
 
-func (pool *Pool) Start() {
+func (pool *Pool) Start(db *sql.DB) {
 
 	poller, err := netpoll.New(nil)
+	if err != nil {
+		log.Println(err)
+	}
+
+	stmt, err := db.Prepare("INSERT INTO Messages(title) VALUES(?)")
 	if err != nil {
 		log.Println(err)
 	}
@@ -72,7 +78,10 @@ func (pool *Pool) Start() {
 			fmt.Println("Size of Connection Pool : ", len(pool.Clients["test"]))
 
 		case msg := <-pool.Broadcast:
-			fmt.Println(string(msg))
+			_, err = stmt.Exec(msg)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

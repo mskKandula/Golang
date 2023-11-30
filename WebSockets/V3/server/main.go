@@ -1,13 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/mskKandula/websockOpt/websock"
 )
 
@@ -24,6 +26,16 @@ func main() {
 	// if err := syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit); err != nil {
 	// 	panic(err)
 	// }
+	var (
+		db  *sql.DB
+		err error
+	)
+
+	db, err = sql.Open("mysql", "mohanak:password123@tcp(db:3306)/Conn")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	fmt.Println("Starting Server...")
 
@@ -33,7 +45,7 @@ func main() {
 
 	pool := websock.NewPool()
 
-	go pool.Start()
+	go pool.Start(db)
 
 	for i := 0; i < 100; i++ {
 		go websock.Read(websock.ClientConnChan)
