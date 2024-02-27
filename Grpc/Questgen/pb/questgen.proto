@@ -1,0 +1,18 @@
+syntax ="proto3";
+
+package questgen;
+
+option go_package="./pb"
+
+message QuestgenRequest{
+
+}
+
+
+message QuestgenResponse{
+    
+}
+
+service QuestgenService{
+    
+}

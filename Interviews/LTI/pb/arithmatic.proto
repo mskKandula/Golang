@@ -1,0 +1,19 @@
+syntax ="proto3";
+
+package arithmatic;
+
+option go_package= "./pb";
+
+message OperationRequest{
+    int32 firstInteger =1;
+    int32 secondInteger=2;
+    string operation=3;
+}
+
+message OperationResponse{
+    int32 response =1;
+}
+
+service Operationservice{
+    rpc PerformOperation(stream OperationRequest) returns (stream OperationResponse){};
+}

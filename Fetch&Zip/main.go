@@ -20,7 +20,10 @@ type FileData struct {
 func main() {
 	fmt.Println("Please Wait.....")
 
-	var urls = []string{"url1", "url2", "url3", "url4"}
+	var urls = []string{"https://era.mkcl.org/lms/cdnserver/1sZIq76KXCy2J3fFnDnR85OVSpY/IN272500101/Student/gurunathm1/StudentAssignments/03/1 Answers for Cyber Security_T1677233311182.pdf",
+		"https://era.mkcl.org/lms/cdnserver/1sZIq76KXCy2J3fFnDnR85OVSpY/IN272500101/Student/apurvav1/StudentAssignments/03/Answers for Cyber Security_T1677233283981.pdf",
+		"https://era.mkcl.org/lms/cdnserver/1sZIq76KXCy2J3fFnDnR85OVSpY/IN272500101/Student/apurvav1/StudentAssignments/01/Session- 1 Assignment_answer_T1677233202783.pdf",
+		"https://era.mkcl.org/lms/cdnserver/1sZIq76KXCy2J3fFnDnR85OVSpY/IN272500101/Student/gurunathm1/StudentAssignments/01/Session- 1 Assignment_ans_T1677232801371.pdf"}
 
 	bytesChan := make(chan FileData, 3)
 	signalChan := make(chan struct{})

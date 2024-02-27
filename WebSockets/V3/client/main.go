@@ -26,7 +26,7 @@ Example usage: ./client -ip=172.17.0.1 -conn=10
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-
+	time.Sleep(45 * time.Second)
 	u := url.URL{Scheme: "ws", Host: *ip + ":8020", Path: "/ws"}
 	log.Printf("Connecting to %s", u.String())
 	var conns []*websocket.Conn

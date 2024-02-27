@@ -1,15 +1,36 @@
 version: "3.0"
 
 services:
+  db:
+    container_name: "conn_db"
+    build:
+      context: .
+      dockerfile: ./MySQL/Dockerfile
+    networks:
+      - default
+    restart: always
+    expose: ["3306"]
+    # setting some env vars
+    environment:
+      MYSQL_USER: "mohanak"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_PASSWORD: "password123"
+      MYSQL_DATABASE: "Conn"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   server:
     container_name: "conn_server"
     # we want to use the image which is build from our Dockerfile
     build:
       context: .
       dockerfile: ./server/Dockerfile
-    expose: ["9000"]
+    expose: ["8000"]
     ports:
-      - "9000:9000"
+      - "8000:8000"
+    depends_on:
+      - db
 
     networks:
       - default
@@ -26,6 +47,10 @@ services:
     expose: ["8020"]
     ports:
       - "8020:8020"
+    depends_on:
+      - client
+      - server
+
     networks:
       - default
 
@@ -45,6 +70,7 @@ services:
     # we are depending on the mysql(db) & redis (cache)
     depends_on:
       - server
+      - db
 
     networks:
       - default
@@ -52,13 +78,12 @@ services:
     sysctls:
       net.ipv4.ip_local_port_range: 10000 65535
 
-    deploy:
-      mode: replicated
-      replicas: 2
-
     # We mount the working dir into the container, handy for development
     restart: always
 
 networks:
   default:
     driver: bridge
+
+volumes:
+  mysql_data:

@@ -1,0 +1,2 @@
+docker build -t live_streaming_server .
+docker run -dp 1935:1935 --mount type=bind,src="$(pwd)"/media,target=/mnt/hls live_streaming_server

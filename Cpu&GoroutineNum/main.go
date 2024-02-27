@@ -13,13 +13,14 @@ func main() {
 	fmt.Println("No of cpu & goroutines", runtime.NumCPU(), runtime.NumGoroutine())
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
+
 		for {
 
 		}
 	}()
 	wg.Add(1)
 	go another()
+	wg.Done()
 	fmt.Println("No of cpu & goroutines", runtime.NumCPU(), runtime.NumGoroutine())
 	wg.Wait()
 }
